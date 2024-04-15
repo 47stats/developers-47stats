@@ -1,0 +1,20 @@
+{
+  "name": "developers-47stats",
+  "version": "1.0.0",
+  "description": "Developers 47stats ~ 統計データ配信サービスのアクセス方法を学習するサイトです",
+  "scripts": {
+    "serve": "http-server htdocs -p 8000 -c-1",
+    "sass-watch": "sass htdocs/src:htdocs/css --no-source-map --watch",
+    "sass": "sass htdocs/src:htdocs/css --no-source-map",
+    "webpack": "webpack"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.10",
+    "compression-webpack-plugin": "^10.0.0",
+    "http-server": "^14.1.1",
+    "sass": "^1.69.4",
+    "tailwindcss": "^3.3.5",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="国勢調査から得られる様々な統計データを、統計APIを使って簡単に取得する方法について学習します" />
+  <meta name="author" content="日本統計センター" />
+
+  <title>統計APIを使って、人口統計データを取得する方法について学習します | 47stats JS</title>
+  <link rel="shortcut icon" href="/img/46-low-resolution-logo-transparent.png" />
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.2.0/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+  <style>
+    body {
+      background-color: #f9f9fa;
+    }
+  </style>
+</head>
+
+<body>
+    <!-- header -->
+    <header class="text-gray-700 body-font">
+      <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
+        <a class="flex title-font font-medium items-center text-gray-900 mb-4 md:mb-0" href="/">
+          <img src="/img/47-low-resolution-logo-transparent.png" class="h-10 w-14">
+          <span class="ml-3 text-xl">47stats JS</span>
+        </a>
+      </div>
+    </header>
+
+  <!-- body -->
+  <div class="relative w-full px-6 py-12 bg-white shadow-xl shadow-slate-700/10 ring-1 ring-gray-900/5 md:max-w-3xl md:mx-auto lg:max-w-4xl lg:pt-16 lg:pb-28">
+
+    <!-- section -->
+    <section class="text-gray-700 body-font">
+      <div class="container px-5 mt-4 mx-auto">
+        <div class="text-center mb-2">
+          <h1 class="sm:text-xl text-2xl font-medium text-center title-font text-gray-900 mb-4">
+            統計データ取得
+          </h1>
+        </div>
+
+        <div class="relative max-w-3xl mx-auto mt-1 mb-24">
+          <p class="sm:text-sm font-normal text-center mt-1">
+            小倉北区の各町丁の統計データリスト
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="relative overflow-x-auto" x-data="datatables()" x-init="datafetch()" x-cloak>
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" class="px-6 py-3">都道府県 </th>
+            <th scope="col" class="px-6 py-3">市区町村 </th>
+            <th scope="col" class="px-6 py-3">町丁 </th>
+            <th scope="col" class="px-6 py-3">人口 </th>
+            <th scope="col" class="px-6 py-3">男 </th>
+            <th scope="col" class="px-6 py-3">女 </th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="model in records">
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" x-text="model.PREFNAME"> </th>
+            <td class="px-6 py-4" x-text="model.CITYNAME"> </td>
+            <td class="px-6 py-4" x-text="model.DNAME"> </td>
+            <td class="px-6 py-4" x-text="model.N1"> </td>
+            <td class="px-6 py-4" x-text="model.N3"></td>
+            <td class="px-6 py-4" x-text="model.N5"></td>
+          </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+
+<!-- Scripts -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js"></script>
+<script type="text/javascript" src="/js/js-loading-overlay.min.js"></script>
+<script type="text/javascript" src="/js/config.js"></script>
+<script>
+  function datatables() {
+    return {
+      records:[],
+      datafetch() {
+        JsLoadingOverlay.show({'spinnerIcon': 'ball-spin-clockwise-fade'});
+        fetch(config.url + '/stats/datalist/list', {
+          headers:{
+            Authorization:config.apikey
+          },
+          method:'POST',
+          body:JSON.stringify({
+            database:'KOK', //国調統計データ
+            store:'TOWN',   //町丁ストア
+            column:[       //列項目
+              `TOWN`,      //町丁コード
+              `PREFNAME`,  //都道府県
+              `CITYNAME`,  //市区町村
+              `DNAME`,     //町丁
+              `N1`,        //人口
+              `N3`,        //男
+              `N5`         //女
+            ],
+            area:['40106'] //北九州市小倉北区エリア
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          this.records = data.dataList;
+          JsLoadingOverlay.hide();
+        })
+      }
+    }
+  }
+</script>
+
+</body>
+
+</html>

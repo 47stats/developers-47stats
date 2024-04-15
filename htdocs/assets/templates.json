@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "title": "47map",
+    "description": "47mapsのテンプレートです",
+    "website": "/templates/47maps/index.html",
+    "image": "/templates/47maps/47maps.png"
+  },
+  {
+    "id": 2,
+    "title": "Dashboard",
+    "description": "ダッシュボードのテンプレートです",
+    "website": "/templates/dashboard/index.html",
+    "image": "/templates/dashboard/dashboard.png"
+  },
+  {
+    "id": 3,
+    "title": "47stats JS",
+    "description": "クラスライブラリを作成します",
+    "website": "/templates/47statsjs/index.html",
+    "image": "/templates/47statsjs/js_classes.png"
+  }
+]

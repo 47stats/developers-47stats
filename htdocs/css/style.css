@@ -1,0 +1,195 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+  color: #000;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+.prose {
+  max-width: 85ch;
+}
+
+.prose pre {
+  font-size: .775em;
+}
+
+.prose h3 {
+  color:chocolate;
+}
+.prose h4 {
+  color:rgb(30, 93, 210);
+}
+.prose h5 {
+  color:rgb(10, 145, 100);
+}
+
+.pagetop {
+    height: 50px;
+    width: 50px;
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    background: white;
+    border: solid 1px lightgray;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    opacity:0;
+    transition: opacity 0.4s ease-in;
+}
+.pagetop.fadein {
+    opacity:1;
+}
+.pagetop {
+    box-shadow: 0 4px 6px rgb(0 0 0 / 30%);
+}
+@media (hover: hover) and (pointer: fine) {
+    .pagetop:hover, .pagetop:hover .pagetop__arrow {
+        border-color: #3293e7;
+    }
+}
+.pagetop__arrow {
+    height: 10px;
+    width: 10px;
+    border-top: 2px solid #aaa;
+    border-right: 2px solid #aaa;
+    transform: translateY(20%) rotate(-45deg);
+}
+
+.modal-container {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  overflow: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: .3s ease-out;
+  z-index: 9;
+}
+
+.modal-container::before {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  height: 100%;
+}
+
+.modal-container.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-body {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 500px;
+  width: 90%;
+}
+
+.modal-close {
+  position: absolute;
+  top: -30px;
+  right: 0;
+  font-size: 14px;
+  color: #fff;
+  background: rgba(0,0,0,60%);
+  padding: 4px 15px;
+  cursor: pointer;
+  border-radius: 5px 5px 0 0;
+}
+
+.modal-content {
+  background: #fff;
+  border: 2px solid #000;
+  text-align: left;
+  padding: 10px;
+  font-weight: bold;
+}
+.box_srcollbar {
+  overflow:auto;
+  /*
+  width:300px;
+  */
+  height:300px;
+  padding:5px;
+  border:1px solid #000;
+  background-color:#F9F9F9;
+  color:#000;
+  font-size:12px;
+}
+.box_title{
+  border:1px solid #000;
+  padding:5px;
+  width:300px;
+  font-weight:bold;
+  font-size:14px;
+  background-color:#000;
+  color:#fff;
+}
+
+#popup_hd,
+#popup_ft {
+  display: none; /* label でコントロールするので input は非表示に */
+}
+
+.popup-open {
+  cursor: pointer; /* マウスオーバーでカーソルの形状を変えることで、クリックできる要素だとわかりやすいように */
+}
+
+.popup-overlay {
+  display: none; /* input にチェックが入るまでは非表示に */
+}
+
+#popup_hd:checked ~ .popup-overlay,
+#popup_ft:checked ~ .popup-overlay {
+  display: block;
+  z-index: 99999;
+  background-color: #00000070;
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  top: 0;
+  left: 0;
+}
+
+.popup-window {
+  width: 90vw;
+  max-width: 560px;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 6px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.popup-text {
+  margin: 0;
+}
+
+.popup-text:not(:last-of-type) {
+  margin-bottom: 1em
+}
+
+.popup-close {
+  cursor: pointer;
+  position: absolute;
+  top: -26px;
+  right: 0;
+}

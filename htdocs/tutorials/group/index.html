@@ -1,0 +1,274 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="国勢調査から得られる様々な統計データをJavascriptから簡単に取得できるように学習します" />
+  <meta name="author" content="日本統計センター" />
+
+  <title>統計APIを使って、色々な統計データを取得する方法について学習します | 47stats JS</title>
+  <link rel="shortcut icon" href="/img/46-low-resolution-logo-transparent.png" />
+
+  <meta property="og:title" content="統計APIを使って、色々な統計データを取得する方法について学習します | 47stats JS" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://github.com/47stats/developers-47stats/" />
+  <meta property="og:image" content="/img/47-low-resolution-logo-transparent.png" />
+  <meta property="og:site_name" content="47stats JS" />
+  <meta property="og:description" content="国勢調査から得られる様々な統計データを、統計APIを使って簡単に取得する方法について学習します" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="統計APIを使って、色々な統計データを取得する方法について学習します | 47stats JS" />
+  <meta name="twitter:description" content="国勢調査から得られる様々な統計データを、統計APIを使って簡単に取得する方法について学習します" />
+  <meta name="twitter:image" content="/img/47-low-resolution-logo-transparent.png" />
+
+  <script type="text/javascript" src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tailwindcss/typography@0.2.x/dist/typography.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v8.1.0/ol.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="/css/json-viewer.css">
+  <link rel="stylesheet" href="/css/lmask.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      background-color: #f9f9fa;
+    }
+
+    #map {
+      height: 400px;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- header -->
+  <div id="header" x-data="" x-init="importHTML('/template_header.html', 'header')"></div>
+
+  <a class="pagetop" href="#">
+    <div class="pagetop__arrow"></div>
+  </a>
+
+  <!-- body -->
+  <div
+    class="relative w-full px-6 py-12 bg-white shadow-xl shadow-slate-700/10 ring-1 ring-gray-900/5 md:max-w-3xl md:mx-auto lg:max-w-4xl lg:pt-16 lg:pb-28">
+
+    <!-- section -->
+    <section class="text-gray-700 body-font">
+      <div class="container px-5 mt-4 mx-auto">
+        <div class="text-center mb-20">
+          <h1 class="sm:text-5xl text-2xl font-medium text-center title-font text-gray-900 mb-4">
+            集約データを取得します
+          </h1>
+        </div>
+    </section>
+
+    <!-- article -->
+    <div class="prose prose-slate mx-auto sm:prose-base">
+      <article id="article" class="text-base leading-relaxed mx-auto"></article>
+
+      <!-- sumple map -->
+      <div id="map"></div>
+      <div class="row">
+        <div class="col-auto">
+          <span class="input-group">
+            <label class="input-group-text" for="type">任意領域:</label>
+            <select class="form-select" id="type">
+              <option value="Circle">Circle</option>
+              <option value="Square">Square</option>
+              <option value="Box">Box</option>
+              <option value="Star">Star</option>
+            </select>
+          </span>
+        </div>
+      </div>
+
+      <!-- loader -->
+      <div id="loader" class="lmask w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50 hidden"> </div>
+    </div>
+
+    <!-- section -->
+    <section class="text-gray-700 body-font">
+      <button
+        class="flex items-center mx-auto mt-16 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+        <a href="https://github.com/47stats/developers-47stats" style="color:white;text-decoration: none;">
+          <i class="fab fa-github"></i>
+          <span class="ml-3">GitHub Repo</span>
+        </a>
+      </button>
+    </section>
+
+  </div>
+
+
+  <!-- footer -->
+  <div id="footer" x-data="" x-init="importHTML('/template_footer.html', 'footer')"></div>
+
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/ol@v8.1.0/dist/ol.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/markdown-wasm@1.2.0/dist/markdown.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+  <script type="text/javascript" src="/js/json-viewer.js"></script>
+  <script type="text/javascript" src="/js/style.js"></script>
+  <script type="text/javascript" src="/js/importHTML.js"></script>
+  <script type="text/javascript" src="/js/config.js"></script>
+  <script>
+    const jsonViewer = new JSONViewer();
+    const modalDialog = new ModalDialog(jsonViewer.getContainer());
+
+    window["markdown"].ready.then(markdown => {
+      fetch('group.md')
+        .then(response => response.text())
+        .then(markdownContent => {
+          var html = markdown.parse(markdownContent);
+          const el = document.getElementById('article');
+          el.innerHTML = html;
+
+          //syntax highlight
+          hljs.highlightAll();
+
+          // アーティクルからサンプルボタンを抽出します
+          let items = document.querySelectorAll('button.block');
+          items.forEach(function (it) {
+            // 各ボタンに`click`イベントを通録します
+            it.addEventListener('click', function () {
+              it.innerText = '統計APIにアクセス中...';
+              it.disabled = true;
+              // カスタムデータ属性(data-*)を取得します
+              // 各トピックのサンプルボタンにカスタムデータ属性を設定します
+              const url = config.url + it.dataset.path;
+              const query = new URLSearchParams(JSON.parse(it.dataset.query));
+              fetch(url + `?${query}`, {
+                headers: {
+                  Authorization: config.apikey
+                }
+              })
+                .then(response => response.json())
+                .then(data => {
+                  it.innerText = 'サンプル';
+                  it.disabled = false;
+                  //alert(JSON.stringify(data, null, 2));
+                  jsonViewer.showJSON(data);
+                  modalDialog.show();
+                });
+            });
+          });
+        });
+    });
+
+    // マップオブジェクトを作成します
+    const raster = new ol.layer.Tile({ source: new ol.source.OSM() });
+    const source = new ol.source.Vector({ wrapX: false });
+    const vector = new ol.layer.Vector({ source: source });
+    const map = new ol.Map({
+      layers: [raster, vector],
+      view: new ol.View({
+        center: ol.proj.transform([130.878182, 33.884223], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 15,
+      }),
+      target: 'map',
+    });
+    const typeSelect = document.getElementById('type');
+
+    let draw; // global so we can remove it later
+    function addInteraction() {
+      let value = typeSelect.value;
+      if (value !== 'None') {
+        let geometryFunction;
+        if (value === 'Square') {
+          value = 'Circle';
+          geometryFunction = ol.interaction.Draw.createRegularPolygon(4);
+        } else if (value === 'Box') {
+          value = 'Circle';
+          geometryFunction = ol.interaction.Draw.createBox();
+        } else if (value === 'Circle') {
+          value = 'Circle';
+          geometryFunction = ol.interaction.Draw.createRegularPolygon(90);
+        } else if (value === 'Star') {
+          value = 'Circle';
+          geometryFunction = function (coordinates, geometry) {
+            const center = coordinates[0];
+            const last = coordinates[coordinates.length - 1];
+            const dx = center[0] - last[0];
+            const dy = center[1] - last[1];
+            const radius = Math.sqrt(dx * dx + dy * dy);
+            const rotation = Math.atan2(dy, dx);
+            const newCoordinates = [];
+            const numPoints = 12;
+            for (let i = 0; i < numPoints; ++i) {
+              const angle = rotation + (i * 2 * Math.PI) / numPoints;
+              const fraction = i % 2 === 0 ? 1 : 0.5;
+              const offsetX = radius * fraction * Math.cos(angle);
+              const offsetY = radius * fraction * Math.sin(angle);
+              newCoordinates.push([center[0] + offsetX, center[1] + offsetY]);
+            }
+            newCoordinates.push(newCoordinates[0].slice());
+            if (!geometry) {
+              geometry = new ol.geom.Polygon([newCoordinates]);
+            } else {
+              geometry.setCoordinates([newCoordinates]);
+            }
+            return geometry;
+          };
+        }
+        draw = new ol.interaction.Draw({
+          source: source,
+          type: value,
+          geometryFunction: geometryFunction,
+        });
+        map.addInteraction(draw);
+
+        draw.on('drawstart', () => source.clear());
+        draw.on('drawend', (e) => {
+          const writer = new ol.format.GeoJSON();
+          const geoJsonStr = writer.writeFeature(e.feature, {
+            dataProjection: 'EPSG:4326',
+            featureProjection: 'EPSG:3857'
+          });
+
+          document.getElementById('loader').classList.remove('hidden');
+
+          fetch(config.url + '/stats/group/polygon', {
+            headers: {
+              Authorization:config.apikey
+            },
+            method: 'POST',
+            body: JSON.stringify({
+              database:'KOK', //国調統計データ
+              store:'TOWN',   //町丁ストア
+              format: "geojson",
+
+              column:[        //列項目
+                'N1',         //人口
+                'N3',         //男
+                'N5'          //女
+              ],
+              polygon: geoJsonStr
+            })
+          })
+            .then(response => response.json())
+            .then(data => {
+              jsonViewer.showJSON(data);
+              modalDialog.show();
+              document.getElementById('loader').classList.add('hidden');
+            });
+
+        });
+      }
+    }
+
+    typeSelect.onchange = function () {
+      map.removeInteraction(draw);
+      addInteraction();
+    };
+    addInteraction();
+
+  </script>
+</body>
+
+</html>

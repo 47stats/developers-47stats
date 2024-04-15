@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Choropleth Map | Mapbox</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.2.0/tailwind.min.css">
+  <link rel="stylesheet" href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css'>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/lmask.css">
+  <link rel="stylesheet" href="./sample.css">
+</head>
+
+<body>
+  <!-- 地図 -->
+  <div id="map" class="z-10"></div>
+  <!-- 凡例 -->
+  <div id="legend" class="legend z-20">
+    <h4>凡例</h4>
+    <div id="legend-item" style="width: 80px;">
+      <span></span>
+      <span style="width: 80%; text-align: right;"></span>
+    </div>
+  </div>
+
+  <!-- loader -->
+  <div id="loader" class="lmask w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50"> </div>
+
+  <!-- JavaScript -->
+  <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
+  <script type="text/javascript" src="/js/config.js"></script>
+  <script type="text/javascript" src="./sample.js"></script>
+  <script>
+    // マップオブジェクトを作成します
+    const map = new maplibregl.Map({
+      container: 'map', // container ID
+      // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+      style: 'https://api.maptiler.com/maps/streets/style.json?key=ZwpkXa7JRKPajgIRHZ7V', // style URL
+      center: [130.68212493, 33.63911675], // starting position [lng, lat]
+      zoom: 8 // starting zoom
+    });
+    map.on('load', () => {
+      map.addControl(new maplibregl.NavigationControl(), 'top-left');
+      map.addControl(new maplibregl.ScaleControl());
+
+      // コロプレスマップを表示します
+      createChoroplethMap((geojson, stepsList) => {
+        map.addSource('city', {
+          type: 'geojson',
+          data: geojson
+        });
+
+        const fillColor = ['interpolate', [`linear`], ['get', 'N1']];
+        stepsList.forEach((it) => {
+          fillColor.push(it[0]);
+          fillColor.push(it[1]);
+        });
+
+        map.addLayer({
+          'id': 'city',
+          'type': 'fill',
+          'source': 'city',
+          'paint': {
+            'fill-outline-color': '#999',
+            // 'fill-color': {
+            //   property: 'N1',
+            //   stops: stepsList //非推奨
+            // },
+            'fill-color': fillColor,
+            'fill-opacity': 0.75
+          }
+        });
+
+        // map.addLayer({
+        //   'id': 'outline',
+        //   'type': 'line',
+        //   'source': 'city',
+        //   'paint': {
+        //     'line-color': '#999',
+        //     'line-width': 0.2,
+        //   }
+        // });
+
+        map.on('click', 'city', function (e) {
+          const item = e.features[0].properties;
+          const popup = new maplibregl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(
+              `<h2 class="mb-2 text-lg font-semibold text-gray-900">${item.CITYNAME}</h2>` +
+              '<ul class="max-w-md space-y-1 text-gray-800 list-disc list-inside dark:text-gray-800">' +
+              `<li>人口：${item.N1.toLocaleString()}</li>` +
+              `<li>男性：${item.N3.toLocaleString()}</li>` +
+              `<li>女性：${item.N5.toLocaleString()}</li></ul>`
+            )
+            .addTo(map);
+          popup._closeButton.addEventListener('click', () => {
+            map.getSource('city').setData(geojson);
+          })
+          map.getSource('city').setData(geojson);
+        });
+
+        map.on('mouseenter', 'city', function () {
+          map.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.on('mouseleave', 'city', function () {
+          map.getCanvas().style.cursor = '';
+        });
+
+        // マスクローダーを消去
+        document.getElementById('loader').style.visibility = 'hidden';
+      });
+    });
+  </script>
+</body>
+
+</html>

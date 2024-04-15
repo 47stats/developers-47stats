@@ -1,0 +1,51 @@
+[
+  {
+    "id": 0,
+    "title": "さあ、始めましょう",
+    "description": "先ずは準備から...",
+    "website": "/tutorials/getstarted/index.html",
+    "image": "/img/get_started.png"
+  },
+  {
+    "id": 1,
+    "title": "カタログを取得",
+    "description": "統計、地域等品目の取得を学習します",
+    "website": "/tutorials/catalog/index.html",
+    "image": "/img/vanillajs.jpg"
+  },
+  {
+    "id": 2,
+    "title": "統計データを取得",
+    "description": "統計データの取得を学習します",
+    "website": "/tutorials/stats/index.html",
+    "image": "/img/vanillajs.jpg"
+  },
+  {
+    "id": 3,
+    "title": "集約データを取得",
+    "description": "集約データの取得を学習します",
+    "website": "/tutorials/group/index.html",
+    "image": "/img/vanillajs.jpg"
+  },
+  {
+    "id": 4,
+    "title": "集計データを取得",
+    "description": "集計データの取得を学習します",
+    "website": "/tutorials/summary/index.html",
+    "image": "/img/vanillajs.jpg"
+  },
+  {
+    "id": 5,
+    "title": "Chart & Graph",
+    "description": "チャートとグラフを表示します",
+    "website": "/tutorials/chart/index.html",
+    "image": "/img/vanillajs.jpg"
+  },
+  {
+    "id": 6,
+    "title": "Choropleth Map",
+    "description": "階級区分図を表示します",
+    "website": "/tutorials/choroplethmap/index.html",
+    "image": "/tutorials/choroplethmap/choroplethmap.png"
+  }
+]

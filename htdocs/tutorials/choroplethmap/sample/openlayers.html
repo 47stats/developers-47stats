@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Choropleth Map | OpenLayers</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.2.0/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v8.1.0/ol.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/lmask.css">
+  <link rel="stylesheet" href="./sample.css">
+  <style>
+    .ol-popup {
+      position: absolute;
+      background-color: white;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 10px;
+      border: 1px solid #cccccc;
+      bottom: 12px;
+      left: -50px;
+      min-width: 280px;
+    }
+
+    .ol-popup:after,
+    .ol-popup:before {
+      top: 100%;
+      border: solid transparent;
+      content: " ";
+      height: 0;
+      width: 0;
+      position: absolute;
+      pointer-events: none;
+    }
+
+    .ol-popup:after {
+      border-top-color: white;
+      border-width: 10px;
+      left: 48px;
+      margin-left: -10px;
+    }
+
+    .ol-popup:before {
+      border-top-color: #cccccc;
+      border-width: 11px;
+      left: 48px;
+      margin-left: -11px;
+    }
+
+    .ol-popup-closer {
+      text-decoration: none;
+      position: absolute;
+      top: 2px;
+      right: 8px;
+    }
+
+    .ol-popup-closer:after {
+      content: "✖";
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 地図 -->
+  <div id="map" class="z-10">
+    <div id="popup" class="ol-popup">
+      <a href="#" id="popup-closer" class="ol-popup-closer"></a>
+      <div id="popup-content"></div>
+    </div>
+  </div>
+  <!-- 凡例 -->
+  <div id="legend" class="legend z-20">
+    <h4>凡例</h4>
+    <div id="legend-item" style="width: 80px;">
+      <span></span>
+      <span style="width: 80%; text-align: right;"></span>
+    </div>
+  </div>
+
+  <!-- loader -->
+  <div id="loader" class="lmask w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50"></div>
+
+  <!-- JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/ol@v8.1.0/dist/ol.js"></script>
+  <script type="text/javascript" src="/js/config.js"></script>
+  <script type="text/javascript" src="./sample.js"></script>
+  <script type="module">
+    // ポップアップウインドウを作成します
+    const container = document.getElementById('popup');
+    const content = document.getElementById('popup-content');
+    const closer = document.getElementById('popup-closer');
+    const overlay = new ol.Overlay({
+      element: container,
+      autoPan: {
+        animation: {
+          duration: 250,
+        },
+      },
+    });
+    closer.onclick = function () {
+      overlay.setPosition(undefined);
+      closer.blur();
+      return false;
+    };
+
+    // マップオブジェクトを作成します
+    const map = new ol.Map({
+      layers: [new ol.layer.Tile({ source: new ol.source.OSM() })],
+      overlays: [overlay],
+      view: new ol.View({
+        center: ol.proj.transform([130.68212493, 33.63911675], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 9,
+      }),
+      target: 'map',
+    });
+
+    // コロプレスマップを表示します
+    createChoroplethMap((geojson, stepsList) => {
+      const vectorSource = new ol.source.Vector({
+        features: new ol.format.GeoJSON({
+          dataProjection: "EPSG:4326",
+          featureProjection: "EPSG:3857",
+        }).readFeatures(geojson)
+      });
+      const vectorLayer = new ol.layer.Vector({
+        opacity: 0.8,
+        source: vectorSource,
+        style: function (feature, resolution) {
+          let color = 'white';
+          stepsList.some((it, i, array) => {
+            if (i == array.length - 1) {
+              if (feature.get('N1') <= it[0]) {
+                color = it[1];
+                return true;
+              }
+            }
+            if (feature.get('N1') < it[0]) {
+              color = it[1];
+              return true;
+            }
+          });
+          return [
+            new ol.style.Style({
+              stroke: new ol.style.Stroke({
+                color: '#999',
+                width: 0.2
+              }),
+              fill: new ol.style.Fill({
+                color: color,
+              })
+            })
+          ];
+        }
+      });
+      map.addLayer(vectorLayer);
+
+      map.on('click', function (evt) {
+        const features = map.getFeaturesAtPixel(evt.pixel);
+        const feature = features.length ? features[0] : undefined;
+        if (feature && feature.get('N1')) {
+          const coordinate = evt.coordinate;
+          content.innerHTML =
+            `<h2 class="mb-2 text-lg font-semibold text-gray-900">${feature.get('CITYNAME')}</h2>` +
+            '<ul class="max-w-md space-y-1 text-gray-800 list-disc list-inside dark:text-gray-800">' +
+            `<li>人口：${feature.get('N1').toLocaleString()}</li>` +
+            `<li>男性：${feature.get('N3').toLocaleString()}</li>` +
+            `<li>女性：${feature.get('N5').toLocaleString()}</li></ul>`;
+          overlay.setPosition(coordinate);
+        } else {
+          overlay.setPosition(undefined);
+        }
+      });
+
+      map.on('pointermove', function (e) {
+        if (!map.forEachFeatureAtPixel(e.pixel, (f) => {
+          map.getTargetElement().style.cursor = 'pointer';
+          return true;
+        })) {
+          map.getTargetElement().style.cursor = '';
+        }
+      });
+
+      // マスクローダーを消去
+      document.getElementById('loader').style.visibility = 'hidden';
+    });
+  </script>
+</body>
+
+</html>

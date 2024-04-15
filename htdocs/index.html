@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="国勢調査から得られる様々な統計データを、統計APIを使って簡単に取得する方法について学習します" />
+    <meta name="author" content="日本統計センター" />
+<meta name="robots" content="noindex">
+<meta name="googlebot" content="noindex">
+
+    <title>商圏分析、エリアマーケティング、店舗カルテは、統計APIを使って解決 | 47stats JS</title>
+    <link rel="shortcut icon" href="/img/47-low-resolution-logo-transparent.png" />
+
+    <meta property="og:title" content="商圏分析、エリアマーケティング、店舗カルテは、統計APIを使って解決 | 47stats JS" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://github.com/47stats/developers-47stats" />
+    <meta property="og:image" content="/img/47-low-resolution-logo-transparent.png" />
+    <meta property="og:site_name" content="47stats JS" />
+    <meta property="og:description" content="国勢調査から得られる様々な統計データを、統計APIを使って簡単に取得する方法について学習します" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="商圏分析、エリアマーケティング、店舗カルテは、統計APIを使って解決 | 47stats JS" />
+    <meta name="twitter:description" content="国勢調査から得られる様々な統計データを、統計APIを使って簡単に取得する方法について学習します" />
+    <meta name="twitter:image" content="/img/47-low-resolution-logo-transparent.png" />
+
+    <script type="text/javascript" src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,300,700" type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+    <link href="/css/style.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- header -->
+    <div id="header" x-data x-init="importHTML('template_header.html', 'header')"></div>
+
+
+    <!-- section -->
+    <section class="text-gray-700 body-font">
+        <div class="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
+            <div
+                class="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
+                <h1 class="title-font sm:text-4xl text-3xl mb-4 font-medium text-gray-900">
+                    統計データを取得する
+                    <br class="hidden lg:inline-block">
+                    JavaScript のコレクションです
+                </h1>
+                <p class="mb-8 leading-relaxed">
+                    <span class="text-xs">株式会社 </span>日本統計センター が運営する、統計データ配信サービス (47stats API) にアクセスするために、
+                    基本的なJavaScriptスキル（一部のHTMLおよびCSSとともに）を使用してコーディングされています。
+                    <br class="hidden lg:inline-block">
+                    これらの単純なJavaScriptのそれぞれのソースコードを確認することで、同じアイデアの新しいバージョンを構築する方法、
+                    または元のオープンソース コードに基づいて、独自のアイデアを追加する方法を理解できるようになります。
+                </p>
+                <div class="flex justify-center">
+                    <a href="https://github.com/47stats/developers-47stats">
+                        <button
+                            class="inline-flex items-center text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">
+                            <i class="fab fa-github"></i>
+                            <span class="ml-3">GitHub Repo</span>
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
+                <img class="object-cover object-center rounded" alt="hero" src="./img/learning-programming.png">
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Tutorials Section -->
+    <div class="xh-full bg-gray-200 text-gray-800 p-4 lg:p-8" style="padding-left:5rem;padding-right:5rem;"
+        id="tutorials" x-data="{
+            title: 'Tutorials',
+            intro: '47stats API について学習します',
+            records: []
+        }" x-init="fetch('assets/tutorials.json?_dc=Date.now()')
+            .then(response => response.json())
+            .then(data => records = data)">
+
+        <h1 class="mt-0 mb-3 font-light text-3xl" x-text="title"><!-- title text --></h1>
+        <p class="text-xl text-gray-600 font-light mb-4" x-html="intro"><!-- intro text --> </p>
+
+        <div class="flex flex-wrap -mx-2 pb-8">
+            <!-- begin: model card -->
+            <template x-for="model in records" :key="model.id">
+                <div class="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 h-full font-light">
+                    <div
+                        class="flex bg-white rounded-lg shadow-md m-2 border-l-4 border-white hover:shadow-2xl hover:border-pink-500 cursor-pointer relative">
+                        <!--
+                        <a x-bind:href="'http://localhost:1841/' + model.website">
+                        -->
+                        <a x-bind:href="model.website">
+                            <div class="p-4 pr-6 leading-normal">
+                                <div class="font-medium text-xl truncate" x-text="model.title"></div>
+                                <div class="truncate uppercase text-xs text-gray-500 font-semibold pb-2 tracking-widest"
+                                    x-text="model.description" style="overflow-wrap:break-all"></div>
+                                <img :src="`${model.image}`" style="height:200px !important" />
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </template>
+            <!-- end: model card -->
+        </div>
+    </div>
+
+
+    <!-- Templates Section --><!--TODO:hidden-->
+    <div class="xh-full bg-gray-300 text-gray-800 p-4 lg:p-8 hidden" style="padding-left:5rem;padding-right:5rem;"
+        id="templates" x-data="{
+            title: 'Template',
+            intro: '47stats JS を使ったアプリケーションを作成します',
+            records: []
+        }" x-init="fetch('assets/templates.json?_dc=Date.now()')
+            .then(response => response.json())
+            .then(data => records = data)">
+
+        <h1 class="mt-0 mb-3 font-light text-3xl" x-text="title"><!-- title text --></h1>
+        <p class="text-xl text-gray-600 font-light mb-4" x-html="intro"><!-- intro text --></p>
+
+        <div class="flex flex-wrap -mx-2 pb-8">
+            <!-- begin: model card -->
+            <template x-for="model in records" :key="model.id">
+                <div class="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 h-full font-light">
+                    <div
+                        class="flex bg-white rounded-lg shadow-md m-2 border-l-4 border-white hover:shadow-2xl hover:border-pink-500 cursor-pointer relative">
+                        <!--
+                        <a x-bind:href="'http://localhost:1841/' + model.website">
+                        -->
+                        <a x-bind:href="model.website">
+                            <div class="p-4 pr-6 leading-normal">
+                                <div class="font-medium text-xl truncate" x-text="model.title"></div>
+                                <div class="truncate uppercase text-xs text-gray-500 font-semibold pb-2 tracking-widest"
+                                    x-text="model.description" style="overflow-wrap:break-all"></div>
+                                <img :src="`${model.image}`" style="height:200px !important" />
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </template>
+            <!-- end: model card -->
+        </div>
+    </div>
+
+
+    <!-- footer -->
+    <div id="footer" x-data="" x-init="importHTML('template_footer.html', 'footer')"></div>
+
+
+    <!-- Scripts -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/markdown-wasm@1.2.0/dist/markdown.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js"></script>
+    <script type="text/javascript" src="/js/style.js"></script>
+    <script type="text/javascript" src="/js/importHTML.js"></script>
+ </body>
+
+</html>

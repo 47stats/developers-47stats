@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>GSI Tiles on Google Maps</title>
+  <link href="//fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.2.0/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/lmask.css">
+  <link rel="stylesheet" href="./sample.css">
+</head>
+
+<body>
+  <!-- 地図 -->
+  <div id="map" class="z-10"></div>
+  <!-- 凡例 -->
+  <div id="legend" class="legend z-20">
+    <h4>凡例</h4>
+    <div id="legend-item" style="width: 80px;">
+      <span></span>
+      <span style="width: 80%; text-align: right;"></span>
+    </div>
+  </div>
+
+  <!-- loader -->
+  <div id="loader" class="lmask w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50"> </div>
+
+  <!-- JavaScript -->
+  <script type="text/javascript" src="/js/config.js"></script>
+  <script type="text/javascript" src="./sample.js"></script>
+  <script type="module">
+    var script = document.createElement('script');
+    script.src = `https://maps.google.co.jp/maps/api/js?v=quarterly&key=${config.googlekey}`;
+    script.onreadystatechange = script.onload = function() {
+
+    // マップオブジェクトを作成します
+    let map;
+    async function initMap() {
+      const { Map } = await google.maps.importLibrary("maps");
+      map = new Map(document.getElementById("map"), {
+        center: { lng: 130.68212493, lat: 33.63911675 }, // starting position [lng, lat]
+        zoom: 9,
+        streetViewControlOptions: { //ストリートビュー コントロール
+          position: google.maps.ControlPosition.RIGHT_TOP,
+        },
+        zoomControlOptions: { //ズーム コントロール
+          position: google.maps.ControlPosition.LEFT_TOP,
+        },
+      });
+    }
+    initMap();
+
+    const infoWindow = new google.maps.InfoWindow();
+
+    // コロプレスマップを表示します
+    createChoroplethMap((geojson, stepsList) => {
+      map.data.addGeoJson(geojson);
+      map.data.addListener('click', (e) => {
+        const item = e.feature;
+        infoWindow.setPosition(e.latLng);
+        infoWindow.setContent(
+                `<h2 class="mb-2 text-lg font-semibold text-gray-900">${item.getProperty('CITYNAME')}</h2>` +
+                '<ul class="max-w-md space-y-1 text-gray-800 list-disc list-inside dark:text-gray-800">' +
+                `<li>人口：${item.getProperty('N1').toLocaleString()}</li>` +
+                `<li>男性：${item.getProperty('N3').toLocaleString()}</li>` +
+                `<li>女性：${item.getProperty('N5').toLocaleString()}</li></ul>`
+        );
+        infoWindow.open(map);
+      });
+      map.data.setStyle((feature) => {
+        let color = 'white';
+        stepsList.some((it, i, array) => {
+            if (i == array.length - 1) {
+              if (feature.getProperty('N1') <= it[0]) {
+                color = it[1];
+                return true;
+              }
+            }
+          if (feature.getProperty('N1') < it[0]) {
+            color = it[1];
+            return true;
+          }
+        });
+        return ({
+          fillColor: color,
+          fillOpacity: 0.8,
+          strokeColor: '#999',
+          strokeWeight: 0,
+          clickable: true,
+          zIndex: 20
+        });
+      });
+
+      // マスクローダーを消去
+      document.getElementById('loader').style.visibility = 'hidden';
+    });
+    }
+    document.head.appendChild(script);
+  </script>
+</body>
+
+</html>

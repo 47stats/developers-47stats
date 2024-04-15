@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Choropleth Map | Leaflet</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/1.2.0/tailwind.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/lmask.css">
+  <link rel="stylesheet" href="./sample.css">
+</head>
+
+<body>
+  <!-- 地図 -->
+  <div id="map" class="z-10"> </div>
+  <!-- 凡例 -->
+  <div id="legend" class="legend z-20">
+    <h4>凡例</h4>
+    <div id="legend-item" style="width: 80px;">
+      <span></span>
+      <span style="width: 80%; text-align: right;"></span>
+    </div>
+  </div>
+
+  <!-- loader -->
+  <div id="loader" class="lmask w-full h-full fixed top-0 left-0 bg-white opacity-75 z-50"> </div>
+
+  <!-- JavaScript -->
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+  <script type="text/javascript" src="/js/config.js"></script>
+  <script type="text/javascript" src="./sample.js"></script>
+  <script>
+    // マップオブジェクトを作成します
+    const map = L.map('map');
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    map.setView([33.63911675, 130.68212493], 9);
+
+    // コロプレスマップを表示します
+    createChoroplethMap((geojson, stepsList) => {
+      L.geoJSON(geojson, {
+        onEachFeature: function (feature, layer) {
+          if (feature.properties) {
+            const item = feature.properties;
+            layer.bindPopup(
+              `<h2 class="mb-2 text-lg font-semibold text-gray-900">${item.CITYNAME}</h2>` +
+              '<ul class="max-w-md space-y-1 text-gray-800 list-disc list-inside dark:text-gray-800">' +
+              `<li>人口：${item.N1.toLocaleString()}</li>` +
+              `<li>男性：${item.N3.toLocaleString()}</li>` +
+              `<li>女性：${item.N5.toLocaleString()}</li></ul>`
+            );
+          }
+        },
+        style: function (feature) {
+          let color = 'white';
+          stepsList.some((it, i, array) => {
+            if (i == array.length - 1) {
+              if (feature.properties.N1 <= it[0]) {
+                color = it[1];
+                return true;
+              }
+            }
+            if (feature.properties.N1 < it[0]) {
+              color = it[1];
+              return true;
+            }
+          });
+          return {
+            fillColor: color,
+            fillOpacity: 0.8,
+            color: '#999',
+            weight: 0.2
+          };
+        }
+      }).addTo(map);
+
+      // マスクローダーを消去
+      document.getElementById('loader').style.visibility = 'hidden';
+    });
+  </script>
+</body>
+
+</html>
