@@ -10,8 +10,5 @@ var config =
 
 	// Mapbox GL JS キーを設定してください
 	"mapboxkey":"",
-
-	// Mapbox GL JS キーを設定してください（ローカルテスト用）
-	"mapboxkey":"",
 }
 ;

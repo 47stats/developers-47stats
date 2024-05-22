@@ -1,5 +1,5 @@
 # Developers 47stats
-統計データ配信サービス（47stats API）をご契約いただいたお客様向けに、APIにアクセスする方法を学習するためのサイトです。
+統計データ配信サービス（47stats API）をご契約いただいたお客様向けに、APIにアクセスする方法を学習するためのサイトです。  
 チュートリアルは順次追加される予定です。
 
 ## 学習に必要なもの
@@ -8,7 +8,23 @@
 - Mapbox GL JSの学習に必要なAPIアクセストークン
 - Google Maps APIの学習に必要なAPIキー
 
-<u>htdocs/js/confg.js</u> の各キーを記述してください
+```javascript
+//htdocs/js/confg.js
+
+var config =
+{
+    "url":"https://api-stats.47stats.com/api/stats/v1",
+
+    // 47stats API キーを設定してください
+    "apikey":"",
+
+    // Google Map API キーを設定してください
+    "googlekey":"",
+
+    // Mapbox GL JS キーを設定してください
+    "mapboxkey":"",
+}
+```
 
 ### JavaScript Libraries
 以下のライブラリは、サンプルの結果を見やすくしたり、振舞いを制御するために利用しました。
@@ -40,6 +56,6 @@ $ npm run serve
 アプリを開発モードで実行します。
 [http://127.0.0.1:8000/](http://127.0.0.1:8000/) を開いてブラウザで表示します。
 
-またはVisual Studio CodeにFive Serverにインストールしてプロジェクトを実行します。
-[http://127.0.0.1:8085/](http://127.0.0.1:8085/) を開いてブラウザで表示します。
+またはVisual Studio CodeにFive Serverにインストールしてプロジェクトを実行します。  
+[http://127.0.0.1:8085/](http://127.0.0.1:8085/) を開いてブラウザで表示します。  
 ポートの変更は、fiveserver.config.jsを修正してください。
